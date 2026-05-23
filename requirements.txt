@@ -1,0 +1,24 @@
+# ===============================================================================
+# DEPENDENCIAS DEL PROYECTO enbUs (Ecosistema Node.js / Nuxt 3)
+# ===============================================================================
+# Este archivo lista las dependencias y módulos requeridos para el entorno.
+# Instalar globalmente o vía package.json con: npm install
+
+# --- FRONTEND & INTERFAZ DE USUARIO ---
+@nuxtjs/tailwindcss@latest
+pinia@latest
+@pinia/nuxt@latest
+qrcode.vue@latest
+html5-qrcode@latest
+
+# --- BACKEND & INFRAESTRUCTURA (NITRO) ---
+@prisma/client@latest
+ioredis@latest
+bcrypt@latest
+jsonwebtoken@latest
+
+# --- DEPENDENCIAS DE DESARROLLO (DEV DEPENDENCIES) ---
+prisma@latest
+@types/bcrypt@latest
+@types/jsonwebtoken@latest
+typescript@latest
