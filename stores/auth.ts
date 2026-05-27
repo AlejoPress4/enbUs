@@ -1,6 +1,7 @@
 // stores/auth.ts
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useFetch } from '#imports'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<{ id: string; nombre: string; apellido: string; correo: string; cuotaRestante: number } | null>(null)

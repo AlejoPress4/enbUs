@@ -1,4 +1,5 @@
 // server/middleware/auth.ts
+import { defineEventHandler, getRequestURL, getHeader, createError } from 'h3'
 import { cache } from '../utils/redis'
 
 export default defineEventHandler(async (event) => {
