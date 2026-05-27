@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '../api/auth'
 import { useAuth } from '../context/AuthContext'
+import BrandLogo from '../components/BrandLogo'
 
 export default function Login() {
   const [correo,     setCorreo]     = useState('')
@@ -43,7 +44,7 @@ export default function Login() {
 
           {/* Logo header */}
           <div className="px-8 pt-8 pb-5 flex flex-col items-center">
-            <img src="/logo.jpg" alt="enbUs" className="h-14 object-contain" />
+            <BrandLogo />
             <p className="text-gray-400 text-xs mt-3 text-center">
               Tarifa diferencial estudiantil · Manizales
             </p>

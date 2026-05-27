@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '../api/auth'
+import BrandLogo from '../components/BrandLogo'
 
 export default function Register() {
   const [form,    setForm]    = useState({ nombre: '', apellido: '', correo: '', contrasena: '' })
@@ -59,7 +60,7 @@ export default function Register() {
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
 
           <div className="px-8 pt-8 pb-5 flex flex-col items-center">
-            <img src="/logo.jpg" alt="enbUs" className="h-14 object-contain" />
+            <BrandLogo />
             <p className="text-gray-400 text-xs mt-3 text-center">Solo correos @ucaldas.edu.co</p>
           </div>
 
