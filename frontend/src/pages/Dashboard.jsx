@@ -9,12 +9,10 @@ import TripHistory from '../components/TripHistory'
 export default function Dashboard() {
   const { user, updateCuota } = useAuth()
 
-  // Dashboard remoto
   const [dashData,    setDashData]    = useState(null)
   const [loadingDash, setLoadingDash] = useState(true)
   const [dashError,   setDashError]   = useState(null)
 
-  // QR
   const [qrToken,      setQrToken]      = useState(null)
   const [secondsLeft,  setSecondsLeft]  = useState(0)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -47,7 +45,7 @@ export default function Dashboard() {
         if (prev <= 1) {
           clearInterval(timerRef.current)
           setQrToken(null)
-          setQrError('El código QR ha expirado. Genera uno nuevo.')
+          setQrError('El código QR expiró. Genera uno nuevo.')
           fetchDashboard()
           return 0
         }
@@ -71,109 +69,98 @@ export default function Dashboard() {
     }
   }
 
-  const cuota = dashData?.perfil?.cuotaRestanteMes ?? user?.cuotaRestante ?? 0
+  const cuota    = dashData?.perfil?.cuotaRestanteMes ?? user?.cuotaRestante ?? 0
   const cuotaMax = 5
-  const cuotaPct = Math.min((cuota / cuotaMax) * 100, 100)
+  const ahorro   = dashData?.perfil?.ahorroAcumuladoCop ?? 0
+  const viajes   = dashData?.perfil?.viajesTotalesEsteMes ?? 0
+
+  const cuotaColor = cuota > 2 ? 'text-brand-blue' : cuota > 0 ? 'text-orange-500' : 'text-red-500'
+  const barColor   = cuota > 2 ? 'bg-brand-orange' : cuota > 0 ? 'bg-orange-300' : 'bg-red-400'
 
   return (
     <Layout>
+
       {/* Greeting */}
-      <div className="mb-7">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Hola, {user?.nombre} 👋
+      <div className="pt-2 pb-5">
+        <p className="text-gray-400 text-sm">Bienvenido de vuelta</p>
+        <h1 className="text-2xl font-extrabold text-gray-800 mt-0.5">
+          {user?.nombre} {user?.apellido}
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">{user?.institucion || 'Universidad de Caldas'}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
 
-        {/* QR Card */}
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-base font-bold text-gray-700 mb-6">Tu Pasaje Digital</h2>
-          <QrDisplay
-            token={qrToken}
-            secondsLeft={secondsLeft}
-            onGenerate={handleGenerate}
-            isGenerating={isGenerating}
-            error={qrError}
-            cuotaRestante={cuota}
-          />
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 text-center">
+          <p className={`text-3xl font-extrabold leading-none ${cuotaColor}`}>{cuota}</p>
+          <p className="text-gray-400 text-xs mt-1.5 font-medium">Pasajes</p>
+          <div className="mt-2 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+            <div className={`h-1.5 rounded-full ${barColor}`} style={{ width: `${(cuota / cuotaMax) * 100}%` }} />
+          </div>
         </div>
 
-        {/* Stats sidebar */}
-        <div className="flex flex-col gap-4">
+        <div className="bg-brand-blue rounded-2xl shadow-sm p-4 text-center">
+          <p className="text-xl font-extrabold text-white leading-none">
+            ${ahorro > 999 ? `${(ahorro / 1000).toFixed(0)}k` : ahorro}
+          </p>
+          <p className="text-blue-300 text-xs mt-1.5 font-medium">Ahorro</p>
+          <p className="text-blue-400 text-xs mt-0.5">COP</p>
+        </div>
 
-          {/* Quota card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-              Pasajes disponibles
-            </p>
-            <div className="flex items-end gap-1 mb-3">
-              <span className={`text-5xl font-extrabold leading-none ${cuota > 1 ? 'text-brand-blue' : cuota === 1 ? 'text-orange-500' : 'text-red-500'}`}>
-                {cuota}
-              </span>
-              <span className="text-gray-400 text-sm mb-1.5">/ {cuotaMax} este mes</span>
-            </div>
-            <div className="bg-gray-100 rounded-full h-2.5 overflow-hidden">
-              <div
-                className={`h-2.5 rounded-full transition-all duration-500 ${
-                  cuota > 2 ? 'bg-brand-orange' : cuota > 0 ? 'bg-orange-300' : 'bg-red-400'
-                }`}
-                style={{ width: `${cuotaPct}%` }}
-              />
-            </div>
-            {cuota === 0 && (
-              <p className="text-xs text-red-500 mt-2 font-medium">
-                Cupo mensual agotado
-              </p>
-            )}
-          </div>
+        <div className="bg-brand-orange-lt border border-orange-100 rounded-2xl shadow-sm p-4 text-center">
+          <p className="text-3xl font-extrabold text-brand-orange leading-none">{viajes}</p>
+          <p className="text-orange-400 text-xs mt-1.5 font-medium">Viajes</p>
+          <p className="text-orange-300 text-xs mt-0.5">este mes</p>
+        </div>
 
-          {/* Savings card */}
-          <div className="bg-brand-blue rounded-2xl p-5 text-white">
-            <p className="text-blue-300 text-xs font-semibold uppercase tracking-wide mb-1">
-              Ahorro acumulado
-            </p>
-            <p className="text-3xl font-extrabold">
-              ${(dashData?.perfil?.ahorroAcumuladoCop ?? 0).toLocaleString('es-CO')}
-            </p>
-            <p className="text-blue-300 text-xs mt-1.5">COP</p>
-            <div className="mt-3 border-t border-blue-600 pt-3">
-              <p className="text-blue-200 text-xs">
-                {dashData?.perfil?.viajesTotalesEsteMes ?? 0} viaje{dashData?.perfil?.viajesTotalesEsteMes !== 1 ? 's' : ''} aprobado{dashData?.perfil?.viajesTotalesEsteMes !== 1 ? 's' : ''}
-              </p>
-            </div>
-          </div>
+      </div>
 
-          {/* Account info */}
-          <div className="bg-brand-orange-lt border border-orange-100 rounded-2xl p-5">
-            <p className="text-xs font-semibold text-brand-orange-dk uppercase tracking-wide mb-1">
-              Institución
-            </p>
-            <p className="text-sm font-bold text-gray-800">{user?.institucion}</p>
-            <p className="text-xs text-gray-500 mt-0.5 break-all">{user?.correo}</p>
-          </div>
+      {/* QR Card */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-5">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-base font-bold text-gray-800">Tu Pasaje Digital</h2>
+          {qrToken && (
+            <span className="bg-green-50 text-green-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-100">
+              Activo
+            </span>
+          )}
+        </div>
+        <QrDisplay
+          token={qrToken}
+          secondsLeft={secondsLeft}
+          onGenerate={handleGenerate}
+          isGenerating={isGenerating}
+          error={qrError}
+          cuotaRestante={cuota}
+        />
+      </div>
+
+      {/* Institution badge */}
+      <div className="bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-6 flex items-center gap-3">
+        <div className="w-9 h-9 bg-brand-blue-light rounded-xl flex items-center justify-center flex-shrink-0">
+          <span className="text-brand-blue text-lg">🎓</span>
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-gray-700 truncate">{user?.institucion || 'Universidad de Caldas'}</p>
+          <p className="text-xs text-gray-400 truncate">{user?.correo}</p>
         </div>
       </div>
 
       {/* Trip history */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-gray-700">Historial de viajes</h2>
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold text-gray-800">Historial de viajes</h2>
           {!loadingDash && (
-            <button
-              onClick={fetchDashboard}
-              className="text-xs text-brand-blue hover:underline"
-            >
+            <button onClick={fetchDashboard} className="text-xs text-brand-blue font-medium hover:underline">
               Actualizar
             </button>
           )}
         </div>
 
         {loadingDash ? (
-          <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
-            <span className="animate-spin inline-block w-6 h-6 border-2 border-brand-blue border-t-transparent rounded-full" />
-            <p className="text-gray-400 text-sm mt-3">Cargando historial...</p>
+          <div className="bg-white rounded-2xl border border-gray-100 p-10 flex flex-col items-center gap-3">
+            <span className="w-7 h-7 border-2 border-brand-blue border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-400 text-sm">Cargando historial...</p>
           </div>
         ) : dashError ? (
           <div className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center text-red-400 text-sm">
@@ -183,6 +170,7 @@ export default function Dashboard() {
           <TripHistory trips={dashData?.historial || []} />
         )}
       </div>
+
     </Layout>
   )
 }

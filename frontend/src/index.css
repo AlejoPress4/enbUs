@@ -7,21 +7,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Overrides para html5-qrcode — quita el borde blanco feo */
-#qr-reader-cam {
-  border: none !important;
-  width: 100% !important;
+body {
+  overscroll-behavior-y: none;
 }
 
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* html5-qrcode overrides */
+#qr-reader-cam { border: none !important; width: 100% !important; }
 #qr-reader-cam__header_message,
-#qr-reader-cam__status_span {
-  display: none !important;
-}
-
-#qr-reader-cam video {
-  border-radius: 0.75rem;
-}
-
-#qr-reader-cam__scan_region {
-  background: transparent !important;
-}
+#qr-reader-cam__status_span { display: none !important; }
+#qr-reader-cam video { border-radius: 0.75rem; width: 100% !important; }
+#qr-reader-cam__scan_region { background: transparent !important; }
