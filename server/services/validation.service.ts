@@ -27,7 +27,22 @@ export class ValidationService {
     }
 
     const cacheKey = `qr:token:${token}`
-    const usuarioId = await cache.get(cacheKey)
+    let usuarioId = await cache.get(cacheKey)
+
+    // Fallback a DB: en Vercel serverless cada request puede ser una instancia nueva,
+    // por lo que el MemoryCache no persiste. Si no está en cache, buscar en DB.
+    if (!usuarioId) {
+      const provisional = await servicioRepository.findByToken(token)
+      if (
+        provisional?.estado === 'PENDIENTE' &&
+        provisional.fechaExpiracion &&
+        new Date() < new Date(provisional.fechaExpiracion)
+      ) {
+        usuarioId = provisional.usuarioId
+        const ttlRestante = Math.floor((new Date(provisional.fechaExpiracion).getTime() - Date.now()) / 1000)
+        await cache.set(cacheKey, usuarioId, ttlRestante)
+      }
+    }
 
     // 2. CASO FALLIDO: El token no existe en Redis (Expiró, ya fue usado, o es falso)
     if (!usuarioId) {
