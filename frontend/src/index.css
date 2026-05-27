@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Overrides para html5-qrcode — quita el borde blanco feo */
+#qr-reader-cam {
+  border: none !important;
+  width: 100% !important;
+}
+
+#qr-reader-cam__header_message,
+#qr-reader-cam__status_span {
+  display: none !important;
+}
+
+#qr-reader-cam video {
+  border-radius: 0.75rem;
+}
+
+#qr-reader-cam__scan_region {
+  background: transparent !important;
+}

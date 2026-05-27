@@ -6,6 +6,11 @@
 .cache
 dist
 
+# Generated frontend build artifacts (generados por scripts/build-frontend.mjs)
+public/assets/
+server/assets/
+frontend/dist/
+
 # Node dependencies
 node_modules
 
