@@ -162,6 +162,10 @@ export default function Scanner() {
 
         {/* Camera area */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+          {/* El div del scanner SIEMPRE está en el DOM — html5-qrcode lo necesita antes de inicializar */}
+          <div id="qr-reader-cam" className={`w-full ${!scanning ? 'hidden' : ''}`} />
+
           {!scanning ? (
             <div className="p-10 text-center">
               <span className="text-6xl">📷</span>
@@ -185,7 +189,6 @@ export default function Scanner() {
             </div>
           ) : (
             <div>
-              <div id="qr-reader-cam" className="w-full" />
               <div className="px-4 py-3 flex items-center justify-between bg-gray-50 border-t border-gray-100">
                 <span className="flex items-center gap-2 text-sm text-gray-500">
                   <span className="inline-block w-2 h-2 rounded-full bg-green-400 animate-pulse" />
