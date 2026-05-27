@@ -45,10 +45,9 @@ export class NotificationService {
 
     const token = enlaceActivacion.split('=')[1] || ''
     const subject = 'Activa tu cuenta de enbUs (Doble Factor)'
-    const bodyText = `Hola, para activar tu tarifa preferencial estudiantil en enbUs, haz clic en el siguiente enlace de verificación:
-http://localhost:3000${enlaceActivacion}
+    const bodyText = `Hola, para validar tu cuenta institucional y activar tu tarifa preferencial estudiantil en enbUs, ingresa el siguiente código de seguridad en la aplicación:
 
-Tu código de activación/token es: ${token}`
+Tu código de verificación es: ${token}`
 
     if (connectionString && senderEmail) {
       try {
@@ -73,7 +72,7 @@ Tu código de activación/token es: ${token}`
         endpoint = endpoint.replace(/\/$/, '') // Remover diagonal final si existe
         const host = endpoint.replace('https://', '')
         
-        const uriPathAndQuery = '/emails/:send?api-version=2023-03-31'
+        const uriPathAndQuery = '/emails:send?api-version=2023-03-31'
         const url = `${endpoint}${uriPathAndQuery}`
         const dateStr = new Date().toUTCString()
 
@@ -169,7 +168,7 @@ Tu código de activación/token es: ${token}`
         endpoint = endpoint.replace(/\/$/, '')
         const host = endpoint.replace('https://', '')
         
-        const uriPathAndQuery = '/emails/:send?api-version=2023-03-31'
+        const uriPathAndQuery = '/emails:send?api-version=2023-03-31'
         const url = `${endpoint}${uriPathAndQuery}`
         const dateStr = new Date().toUTCString()
 
