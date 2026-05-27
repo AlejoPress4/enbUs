@@ -8,8 +8,11 @@ export default defineNuxtConfig({
 
   // Variables de entorno y configuración segura para el Backend (Nitro)
   runtimeConfig: {
+    // Variables SOLO del servidor (privadas, nunca expuestas al cliente)
     jwtSecret: process.env.JWT_SECRET || 'clave_secreta_desarrollo_enbus_2026',
-    redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
+    redisUrl: process.env.REDIS_URL || process.env.KV_URL || '',
+    azureCommunicationConnectionString: process.env.AZURE_COMMUNICATION_SERVICE_CONNECTION_STRING || '',
+    azureCommunicationSenderEmail: process.env.AZURE_COMMUNICATION_SERVICE_SENDER_EMAIL || '',
 
     // Variables accesibles tanto en el Servidor como en el Cliente
     public: {

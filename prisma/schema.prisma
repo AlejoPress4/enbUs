@@ -1,0 +1,144 @@
+// prisma/schema.prisma
+// -------------------------------------------------------
+// Proveedor configurado dinámicamente desde DATABASE_URL:
+//   - SQLite    → file:./dev.db        (desarrollo local)
+//   - PostgreSQL → postgresql://...    (Vercel Neon producción)
+// -------------------------------------------------------
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// -------------------------------------------------------
+// MODELOS - Apegados al diagrama de clases del README.md
+// -------------------------------------------------------
+// Nota: SQLite no soporta enums nativos de DB.
+// Se usan String con comentarios documentando los valores
+// válidos. Al migrar a PostgreSQL se pueden usar enums reales.
+// -------------------------------------------------------
+
+model Institucion {
+  id             String    @id @default(uuid())
+  nombre         String
+  dominioCorreo  String    @unique @map("dominio_correo")
+  activa         Boolean   @default(true)
+  fechaRegistro  DateTime  @default(now()) @map("fecha_registro")
+  usuarios       Usuario[]
+
+  @@map("institucion")
+}
+
+model Usuario {
+  id                  String         @id @default(uuid())
+  nombre              String
+  apellido            String
+  correoInstitucional String         @unique @map("correo_institucional")
+  contrasenaHash      String         @map("contrasena_hash")
+  institucionId       String         @map("institucion_id")
+  institucion         Institucion    @relation(fields: [institucionId], references: [id])
+  fechaRegistro       DateTime       @default(now()) @map("fecha_registro")
+  estado              String         @default("INACTIVO") // "ACTIVO" | "INACTIVO"
+  cuotaRestanteMes    Int            @default(5) @map("cuota_restante_mes")
+  ultimoAcceso        DateTime?      @map("ultimo_acceso")
+
+  servicios           Servicio[]
+  cuotasMensuales     CuotaMensual[]
+
+  @@map("usuario")
+}
+
+model CuotaMensual {
+  id             String   @id @default(uuid())
+  usuarioId      String   @map("usuario_id")
+  usuario        Usuario  @relation(fields: [usuarioId], references: [id])
+  mes            Int
+  anio           Int
+  usosRealizados Int      @default(0) @map("usos_realizados")
+  limiteUsos     Int      @default(5) @map("limite_usos")
+
+  @@unique([usuarioId, mes, anio])
+  @@map("cuota_mensual")
+}
+
+model EmpresaTransporte {
+  id       String    @id @default(uuid())
+  nombre   String
+  nit      String    @unique
+  contacto String?
+  activa   Boolean   @default(true)
+  busetas  Buseta[]
+
+  @@map("empresa_transporte")
+}
+
+model Buseta {
+  id             String            @id @default(uuid())
+  empresaId      String            @map("empresa_id")
+  empresa        EmpresaTransporte @relation(fields: [empresaId], references: [id])
+  placa          String            @unique
+  numeroInterno  String            @map("numero_interno")
+  activa         Boolean           @default(true)
+  lector         LectorQR?
+  busetaRutas    BusetaRuta[]
+  servicios      Servicio[]
+
+  @@map("buseta")
+}
+
+model LectorQR {
+  id                   String   @id @default(uuid())
+  busetaId             String   @unique @map("buseta_id")
+  buseta               Buseta   @relation(fields: [busetaId], references: [id])
+  numeroSerie          String   @unique @map("numero_serie")
+  estado               String   @default("ACTIVO") // "ACTIVO" | "INACTIVO" | "MANTENIMIENTO"
+  ultimaSincronizacion DateTime @default(now()) @map("ultima_sincronizacion")
+
+  @@map("lector_qr")
+}
+
+model Ruta {
+  id          String       @id @default(uuid())
+  nombre      String
+  origen      String
+  destino     String
+  activa      Boolean      @default(true)
+  busetaRutas BusetaRuta[]
+
+  @@map("ruta")
+}
+
+model BusetaRuta {
+  id              String   @id @default(uuid())
+  busetaId        String   @map("buseta_id")
+  buseta          Buseta   @relation(fields: [busetaId], references: [id])
+  rutaId          String   @map("ruta_id")
+  ruta            Ruta     @relation(fields: [rutaId], references: [id])
+  fechaAsignacion DateTime @default(now()) @map("fecha_asignacion")
+  activa          Boolean  @default(true)
+
+  @@unique([busetaId, rutaId])
+  @@map("buseta_ruta")
+}
+
+model Servicio {
+  id                  String    @id @default(uuid())
+  usuarioId           String    @map("usuario_id")
+  usuario             Usuario   @relation(fields: [usuarioId], references: [id])
+  busetaId            String    @map("buseta_id")
+  buseta              Buseta    @relation(fields: [busetaId], references: [id])
+  tokenCifrado        String?   @map("token_cifrado")
+  fechaGeneracion     DateTime  @default(now()) @map("fecha_generacion")
+  fechaExpiracion     DateTime? @map("fecha_expiracion")
+  fechaHoraValidacion DateTime? @map("fecha_hora_validacion")
+  estado              String    @default("PENDIENTE") // "PENDIENTE" | "VALIDADO" | "EXPIRADO" | "RECHAZADO"
+  resultadoValidacion String?   @map("resultado_validacion") // "APROBADO" | "RECHAZADO"
+  motivoRechazo       String?   @map("motivo_rechazo")
+
+  @@map("servicio")
+}
